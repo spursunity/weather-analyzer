@@ -1,0 +1,1 @@
+# Java Spring test project "Weather analyzer"
