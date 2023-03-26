@@ -1,6 +1,8 @@
 package com.va.weather.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.va.weather.service.WeatherService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,8 @@ import java.net.http.HttpResponse;
 
 @Component
 public class ScheduledTasks {
+    @Autowired
+    private WeatherService weatherService;
     private final long delay = 1000 * 60 * 60;
     @Value("${api.weather.url}")
     private final String url;
@@ -47,8 +51,7 @@ public class ScheduledTasks {
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 WeatherFromAPI weather = objectMapper.readValue(response.body(), WeatherFromAPI.class);
-                // todo: instead save getting data
-                System.out.println(weather.toString());
+                weatherService.saveFromAPI(weather);
             }
         } catch (Exception e) {
             System.out.println("Check your 'apiHeaderKeyValue' (rapid API key value), please");
