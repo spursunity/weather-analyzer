@@ -1,5 +1,6 @@
 package com.va.weather.controller;
 
+import com.va.weather.exception.IncorrectPeriodException;
 import com.va.weather.service.WeatherService;
 import com.va.weather.utils.PeriodRequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +41,12 @@ public class WeatherController {
     @PostMapping("/period")
     public ResponseEntity getWeatherPeriodWithBody(@RequestBody PeriodRequestBody period) {
         try {
-            if (period == null || period.getFrom() == null) {
-                return ResponseEntity.badRequest().body("Incorrect query params");
-            }
+            if (period == null || period.getFrom() == null) throw new IncorrectPeriodException();
 
             return ResponseEntity.ok(weatherService.getPeriod(period.getFrom(), period.getTo()));
+        } catch (IncorrectPeriodException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Incorrect request body");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();

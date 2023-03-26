@@ -2,6 +2,7 @@ package com.va.weather.service;
 
 import com.va.weather.entity.WeatherEntity;
 import com.va.weather.entity.WeatherEntityAverageProjection;
+import com.va.weather.exception.IncorrectPeriodException;
 import com.va.weather.repo.WeatherRepository;
 import com.va.weather.utils.WeatherFromAPI;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +40,11 @@ public class WeatherService {
         return repository.findFirstByOrderByDateDesc();
     }
 
-    public WeatherEntityAverageProjection getPeriod(String from, String to) throws Exception {
+    public WeatherEntityAverageProjection getPeriod(String from, String to) throws IncorrectPeriodException {
         LocalDateTime endDate = parseDateFromString(to, LocalDateTime.now());
         LocalDateTime startDate = parseDateFromString(from, LocalDateTime.now().minusDays(1));
 
-        // todo: create specific exception
-        if (startDate.isAfter(endDate)) throw new Exception();
+        if (startDate.isAfter(endDate)) throw new IncorrectPeriodException();
 
         return repository.findWeatherDuringLastDayNative(
                 startDate.format(DateTimeFormatter.ISO_DATE_TIME),
