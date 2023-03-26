@@ -1,6 +1,7 @@
 package com.va.weather.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.va.weather.entity.WeatherEntity;
 import com.va.weather.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class ScheduledTasks {
@@ -51,11 +54,25 @@ public class ScheduledTasks {
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 WeatherFromAPI weather = objectMapper.readValue(response.body(), WeatherFromAPI.class);
-                weatherService.saveFromAPI(weather);
+                WeatherEntity entity = parseEntityFromAPI(weather);
+                weatherService.save(entity);
             }
         } catch (Exception e) {
             System.out.println("Check your 'apiHeaderKeyValue' (rapid API key value), please");
             e.printStackTrace();
         }
+    }
+
+    private WeatherEntity parseEntityFromAPI(WeatherFromAPI weatherFromAPI) {
+        WeatherEntity weatherEntity = new WeatherEntity();
+        weatherEntity.setLocation(weatherFromAPI.getLocation().getName());
+        weatherEntity.setTemperature(weatherFromAPI.getCurrent().getTemperature());
+        weatherEntity.setWindSpeed(weatherFromAPI.getCurrent().getWindSpeed());
+        weatherEntity.setPressure(weatherFromAPI.getCurrent().getPressure());
+        weatherEntity.setHumidity(weatherFromAPI.getCurrent().getHumidity());
+        weatherEntity.setConditionText(weatherFromAPI.getCurrent().getCondition().getCondition());
+        weatherEntity.setDate(LocalDateTime.now(ZoneId.systemDefault()));
+
+        return weatherEntity;
     }
 }
