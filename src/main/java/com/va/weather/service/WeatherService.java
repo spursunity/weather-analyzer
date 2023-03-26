@@ -30,4 +30,8 @@ public class WeatherService {
             e.printStackTrace();
         }
     }
+
+    public WeatherEntity getCurrent() {
+        return repository.findFirstByOrderByDateDesc();
+    }
 }
